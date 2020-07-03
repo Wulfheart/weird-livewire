@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('inputform');
+    return view('viz');
 });
 
 Route::post('visualize', function(Request $request){

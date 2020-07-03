@@ -1,0 +1,13 @@
+models:
+  Visualization:
+    result: string
+    name: string index
+    relationships:
+      hasMany: MidiFile, Color
+  MidiFile:
+    visualization_id: id:visualization
+  Color:
+    visualization_id: id:visualization
+controllers:
+  Visualization:
+    resource: create, store, show

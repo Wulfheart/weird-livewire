@@ -1,0 +1,22 @@
+created:
+    - database/migrations/2020_07_03_200909_create_visualizations_table.php
+    - database/migrations/2020_07_03_200910_create_midi_files_table.php
+    - database/migrations/2020_07_03_200911_create_colors_table.php
+    - app/Visualization.php
+    - app/MidiFile.php
+    - app/Color.php
+    - database/factories/VisualizationFactory.php
+    - database/factories/MidiFileFactory.php
+    - database/factories/ColorFactory.php
+    - app/Http/Controllers/VisualizationController.php
+    - app/Http/Requests/VisualizationStoreRequest.php
+    - resources/views/visualization/create.blade.php
+    - resources/views/visualization/show.blade.php
+    - tests/Feature/Http/Controllers/VisualizationControllerTest.php
+updated:
+    - routes/web.php
+models:
+    User: {  }
+    Visualization: { result: string, name: 'string index', relationships: { hasMany: 'MidiFile, Color' } }
+    MidiFile: { visualization_id: 'id:visualization' }
+    Color: { visualization_id: 'id:visualization' }
