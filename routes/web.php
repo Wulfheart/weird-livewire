@@ -30,17 +30,19 @@ Route::post('visualize', function(Request $request){
     ]);
     logger($request->all());
     $name = Uuid::uuid4()->toString() . '.mid';
-    logger($name);
-    Storage::putFileAs("temp", $request->midi, $name);
-    $process = new Process(['brahms', '-i', storage_path('app/temp/'.$name), '-c', collect($request->colors)->transform(function($item, $key){
+    $path = storage_path('app/'.$name);
+    Storage::putFileAs("", $request->midi, $name);
+    $process = new Process(['brahms', '-i', $path, '-c', collect($request->colors)->transform(function($item, $key){
         return trim($item);
       })->join(',')]);
       $process->run();
-
+      logger($path);
+      
 // executes after the command finishes
 if (!$process->isSuccessful()) {
     throw new ProcessFailedException($process);
 }
+Storage::delete($name);
 
     return $process->getOutput();
 })->name('viz.post');
