@@ -18,12 +18,10 @@ use Symfony\Component\Process\Process;
 |
 */
 
-Route::get('/', function () {
-    return view('viz');
-});
+Route::livewire('/', 'viz');
 
 Route::post('visualize', function (Request $request) {
-    // TODO: Validate request
+    // TODO: Validate request visually
     $request->validate([
         'midi' => 'required',
         'colors' => 'min:2|required'
@@ -32,15 +30,22 @@ Route::post('visualize', function (Request $request) {
     $name = Uuid::uuid4()->toString() . '.mid';
     $path = storage_path('app/' . $name);
     Storage::putFileAs("", $request->midi, $name);
+    logger([config('tools.brahms'), '-i', $path, '-c', collect($request->colors)->transform(function ($item, $key) {
+        return trim($item);
+    })->join(','), '--midi2csv', config('tools.midicsv')
+    ]);
     $process = new Process([config('tools.brahms'), '-i', $path, '-c', collect($request->colors)->transform(function ($item, $key) {
         return trim($item);
-    })->join(','), '--midi2csv', config('tools.midicsv')]);
+    })->join(','), '--midi2csv', config('tools.midicsv')
+    ]);
+    
     $process->run();
 
     // executes after the command finishes
     if (!$process->isSuccessful()) {
         throw new ProcessFailedException($process);
     }
+    logger($process->getErrorOutput());
     Storage::delete($name);
 
     return $process->getOutput();
