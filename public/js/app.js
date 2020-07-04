@@ -1923,34 +1923,73 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+  props: {
+    endpoint: {
+      type: String,
+      required: true
+    }
+  },
   data: function data() {
     return {
-      midi: {
-        value: ""
-      }
+      midi: "",
+      colors: [{
+        "value": "#fff000"
+      }, {
+        "value": "#2b2b2b"
+      }],
+      svg: ""
     };
+  },
+  computed: {
+    canSub: function canSub() {
+      return this.colors.length <= 2;
+    }
   },
   methods: {
     input: function input(event) {
-      this.midi.value = event.target.value;
-      console.log(event.target.value);
-      this.$emit('input', event.target.value);
+      this.midi = event.target.files[0];
+      console.log(event.target.files[0]); // this.$emit('input', event.target.value)
     },
     submit: function submit() {
-      bodyFormData = new FormData();
-      bodyFormData.append('midi', midi.value);
-      axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('./visualize', bodyFormData, {
+      var _this = this;
+
+      var bodyFormData = new FormData();
+      bodyFormData.append('midi', this.midi), bodyFormData.append('colors', this.colors.map(function (x) {
+        return x.value;
+      })), console.log(bodyFormData);
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.post(this.$props.endpoint, bodyFormData, {
         'Content-Type': 'multipart/form-data'
       }).then(function (response) {
         //handle success
         console.log(response);
+        _this.svg = response.data;
       })["catch"](function (response) {
         //handle error
-        console.log(response);
+        console.error(response);
       });
+    },
+    add: function add() {
+      this.colors.push({
+        "value": "#".concat(Math.floor(Math.random() * 16777215).toString(16))
+      });
+    },
+    sub: function sub() {
+      this.colors.pop();
     }
   }
 });
@@ -2442,32 +2481,73 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("div", [
     _c("div", [
-      _c("label", [_vm._v("Midi File")]),
+      _c("div", [
+        _c("label", [_vm._v("Midi File")]),
+        _vm._v(" "),
+        _c("input", {
+          attrs: { type: "file", name: "", accept: "audio/midi" },
+          on: {
+            change: function($event) {
+              return _vm.input($event)
+            }
+          }
+        })
+      ]),
       _vm._v(" "),
-      _c("input", {
-        attrs: { type: "file", name: "", accept: "audio/midi" },
-        domProps: { value: _vm.midi.value },
-        on: { input: _vm.input }
-      })
+      _c("div", [
+        _c(
+          "div",
+          _vm._l(_vm.colors, function(color) {
+            return _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: color.value,
+                  expression: "color.value"
+                }
+              ],
+              key: color.value,
+              attrs: { type: "color" },
+              domProps: { value: color.value },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.$set(color, "value", $event.target.value)
+                }
+              }
+            })
+          }),
+          0
+        ),
+        _vm._v(" "),
+        _c("div", [
+          _c("button", { attrs: { type: "button" }, on: { click: _vm.add } }, [
+            _vm._v("+")
+          ]),
+          _vm._v(" "),
+          _c(
+            "button",
+            {
+              attrs: { type: "button", disabled: _vm.canSub },
+              on: { click: _vm.sub }
+            },
+            [_vm._v("-")]
+          )
+        ])
+      ]),
+      _vm._v(" "),
+      _c("button", { attrs: { type: "button" }, on: { click: _vm.submit } }, [
+        _vm._v("Submit")
+      ])
     ]),
     _vm._v(" "),
-    _vm._m(0),
-    _vm._v(" "),
-    _c("button", { attrs: { type: "button" }, on: { click: _vm.submit } }, [
-      _vm._v("Submit")
-    ])
+    _c("div", { domProps: { innerHTML: _vm._s(_vm.svg) } })
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", [
-      _c("input", { attrs: { type: "color", name: "", id: "" } })
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 

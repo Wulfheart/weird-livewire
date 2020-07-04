@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<viz></viz>
+<viz endpoint="{{ route('viz.post') }}"></viz>
     
 @endsection
 
