@@ -22,7 +22,7 @@ Route::get('/', function () {
     return view('viz');
 });
 
-Route::post('visualize', function(Request $request){
+Route::post('visualize', function (Request $request) {
     // TODO: Validate request
     $request->validate([
         'midi' => 'required',
@@ -30,19 +30,18 @@ Route::post('visualize', function(Request $request){
     ]);
     logger($request->all());
     $name = Uuid::uuid4()->toString() . '.mid';
-    $path = storage_path('app/'.$name);
+    $path = storage_path('app/' . $name);
     Storage::putFileAs("", $request->midi, $name);
-    $process = new Process(['brahms', '-i', $path, '-c', collect($request->colors)->transform(function($item, $key){
+    $process = new Process([config('tools.brahms'), '-i', $path, '-c', collect($request->colors)->transform(function ($item, $key) {
         return trim($item);
-      })->join(',')]);
-      $process->run();
-      logger($path);
-      
-// executes after the command finishes
-if (!$process->isSuccessful()) {
-    throw new ProcessFailedException($process);
-}
-Storage::delete($name);
+    })->join(','), '--midi2csv', config('tools.midicsv')]);
+    $process->run();
+
+    // executes after the command finishes
+    if (!$process->isSuccessful()) {
+        throw new ProcessFailedException($process);
+    }
+    Storage::delete($name);
 
     return $process->getOutput();
 })->name('viz.post');
